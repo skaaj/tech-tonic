@@ -15,5 +15,14 @@ given intAdditionCombiner: Combiner[Int] with {
   override def combine(x: Int, y: Int): Int = x + y
 }
 
-@main def main() =
-  println(combineAll(Seq(2, 3, 5, 32)))
+given optionCombine[A](using combiner: Combiner[A]): Combiner[Option[A]] with {
+  override def empty = Some(combiner.empty)
+  override def combine(x: Option[A], y: Option[A]): Option[A] = for {
+    vx <- x
+    vy <- y
+  } yield combiner.combine(vx, vy)
+}
+
+@main def combinerMain() =
+  val foo: Option[Int] = combineAll(Seq(Some(1), None, Some(2)))
+  println(foo)
